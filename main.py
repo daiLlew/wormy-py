@@ -1,7 +1,8 @@
 import sys
-import pygame
-from models import *
+
 from pygame.locals import *
+
+from models import *
 
 WHITE = (255, 255, 255)
 SCREEN_SIZE = 800
@@ -12,14 +13,18 @@ def main():
     pygame.init()
     global FPSCLOCK, DISPLAYSURF
 
-    startPos = (SCREEN_SIZE / 2) - (SEGMENT_SIZE / 2)
-    snake = Snake(startPos, startPos)
+    start_pos = (SCREEN_SIZE / 2) - (SEGMENT_SIZE / 2)
+    snake = Snake(start_pos, start_pos)
+
+    canvas = Canvas(SCREEN_SIZE)
 
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE), 0, 32)
-    pygame.display.set_caption("Hello world!")
+    pygame.display.set_caption("Wormy-py")
 
-    while True:
+    running = True
+
+    while running:
         for event in pygame.event.get():
             if event.type == QUIT:
                 print("exiting")
@@ -32,6 +37,10 @@ def main():
         DISPLAYSURF.fill(WHITE)
         snake.draw(DISPLAYSURF)
         snake.move()
+
+        if canvas.boundary_collision(snake):
+            running = False
+            print("boundary collision exiting game!")
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
