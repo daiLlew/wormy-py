@@ -28,7 +28,7 @@ class Canvas:
         if dir == DOWN:
             return not self.rect.collidepoint(head.rect.midbottom)
         elif dir == LEFT:
-            return not self.rect.collidepoint(head.rect.midlieft)
+            return not self.rect.collidepoint(head.rect.midleft)
         else:
             return not self.rect.collidepoint(head.rect.midright)
 
@@ -70,6 +70,16 @@ class Snake:
     def move(self):
         for segment in self.body:
             segment.update(self.direction)
+
+    def update_direction(self, event):
+        if event.key == pygame.K_LEFT:
+            self.direction = LEFT
+        if event.key == pygame.K_RIGHT:
+            self.direction = RIGHT
+        if event.key == pygame.K_UP:
+            self.direction = UP
+        if event.key == pygame.K_DOWN:
+            self.direction = DOWN
 
 
 class BodySegment:

@@ -33,6 +33,8 @@ def main():
 
             if event.type == MOUSEBUTTONDOWN:
                 snake.add()
+            if event.type == pygame.KEYDOWN:
+                snake.update_direction(event)
 
         DISPLAYSURF.fill(WHITE)
         snake.draw(DISPLAYSURF)
