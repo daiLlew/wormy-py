@@ -2,9 +2,11 @@ import pygame
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-SEGMENT_SIZE = 40
-MOVEMENT = 2
+SEGMENT_SIZE = 20
+MOVEMENT = 20
+ANIMATION_SPEED = 10
 
 UP = "up"
 DOWN = "down"
@@ -36,16 +38,25 @@ class Canvas:
 class Snake:
     length = None
     body = []
-    direction = DOWN
+    direction = UP
 
     def __init__(self, start_x, start_y):
         self.length = 1
         self.body.append(BodySegment(start_x, start_y))
+        self.ani_speed = ANIMATION_SPEED
+
+        self.add()
+        self.add()
 
     def draw(self, surface):
+        head = True
         for segment in self.body:
-            pygame.draw.rect(surface, GREEN, segment.rect)
-            pygame.draw.rect(surface, BLACK, pygame.Rect(segment.x_co, segment.y_co, 2, 2))
+            if head:
+                pygame.draw.rect(surface, GREEN, segment.rect)
+                head = False
+            else:
+                pygame.draw.rect(surface, RED, segment.rect)
+                pygame.draw.rect(surface, BLACK, segment.xy())
 
     def add(self):
         last = self.body[-1]
@@ -65,20 +76,44 @@ class Snake:
             new_x = last.rect.x + SEGMENT_SIZE
             new_y = last.rect.y
 
+        print("current x", last.x_co, "current y", last.y_co)
+        print("new x", new_x, "new y", new_y)
         self.body.append(BodySegment(new_x, new_y))
 
     def move(self):
-        for segment in self.body:
-            segment.update(self.direction)
+        if self.ani_speed > 0:
+            self.ani_speed -= 1
+            return
+
+        old_head = self.body[0]
+
+        if self.direction == UP:
+            new_x = old_head.rect.x
+            new_y = old_head.rect.y - MOVEMENT
+        elif self.direction == DOWN:
+            new_x = old_head.rect.x
+            new_y = old_head.rect.y + MOVEMENT
+        elif self.direction == LEFT:
+            new_x = old_head.rect.x - MOVEMENT
+            new_y = old_head.rect.y
+        else:
+            new_x = old_head.rect.x + MOVEMENT
+            new_y = old_head.rect.y
+
+        self.body.pop()
+        new_head = BodySegment(new_x, new_y)
+        self.body.insert(0, new_head)
+
+        self.ani_speed = ANIMATION_SPEED
 
     def update_direction(self, event):
-        if event.key == pygame.K_LEFT:
+        if event.key == pygame.K_LEFT and self.direction is not RIGHT:
             self.direction = LEFT
-        if event.key == pygame.K_RIGHT:
+        if event.key == pygame.K_RIGHT and self.direction is not LEFT:
             self.direction = RIGHT
-        if event.key == pygame.K_UP:
+        if event.key == pygame.K_UP and self.direction is not DOWN:
             self.direction = UP
-        if event.key == pygame.K_DOWN:
+        if event.key == pygame.K_DOWN and self.direction is not UP:
             self.direction = DOWN
 
 
@@ -94,14 +129,8 @@ class BodySegment:
         self.size = SEGMENT_SIZE
         self.rect = pygame.Rect(self.x_co, self.y_co, self.size, self.size)
 
-    def update(self, direction):
-        if direction == UP:
-            self.y_co -= MOVEMENT
-        elif direction == DOWN:
-            self.y_co += MOVEMENT
-        elif direction == LEFT:
-            self.x_co -= MOVEMENT
-        else:
-            self.x_co += MOVEMENT
+    def xy(self):
+        return pygame.Rect(self.x_co, self.y_co, 2, 2)
 
-        self.rect = pygame.Rect(self.x_co, self.y_co, self.size, self.size)
+    def __str__(self):
+        return "x = " + self.x_co + ", y = " + self.y_co

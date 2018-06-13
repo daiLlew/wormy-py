@@ -25,6 +25,7 @@ def main():
     running = True
 
     while running:
+        FPSCLOCK.tick(FPS)
         for event in pygame.event.get():
             if event.type == QUIT:
                 print("exiting")
@@ -33,19 +34,19 @@ def main():
 
             if event.type == MOUSEBUTTONDOWN:
                 snake.add()
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 snake.update_direction(event)
+
+        snake.move()
 
         DISPLAYSURF.fill(WHITE)
         snake.draw(DISPLAYSURF)
-        snake.move()
 
         if canvas.boundary_collision(snake):
             running = False
             print("boundary collision exiting game!")
 
         pygame.display.update()
-        FPSCLOCK.tick(FPS)
 
 
 if __name__ == '__main__':
