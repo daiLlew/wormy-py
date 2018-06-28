@@ -42,9 +42,8 @@ def main():
         DISPLAYSURF.fill(WHITE)
         snake.draw(DISPLAYSURF)
 
-        if canvas.boundary_collision(snake):
+        if snake.check_collisions(canvas):
             running = False
-            print("boundary collision exiting game!")
 
         pygame.display.update()
 

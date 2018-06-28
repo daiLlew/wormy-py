@@ -6,7 +6,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 SEGMENT_SIZE = 20
 MOVEMENT = 20
-ANIMATION_SPEED = 10
+ANIMATION_SPEED = 5
 
 UP = "up"
 DOWN = "down"
@@ -20,19 +20,6 @@ class Canvas:
     def __init__(self, size):
         self.size = size
         self.rect = pygame.Rect(0, 0, self.size, self.size)
-
-    def boundary_collision(self, snake):
-        head = snake.body[0]
-        dir = snake.direction
-
-        if dir == UP:
-            return not self.rect.collidepoint(head.rect.midtop)
-        if dir == DOWN:
-            return not self.rect.collidepoint(head.rect.midbottom)
-        elif dir == LEFT:
-            return not self.rect.collidepoint(head.rect.midleft)
-        else:
-            return not self.rect.collidepoint(head.rect.midright)
 
 
 class Snake:
@@ -115,6 +102,29 @@ class Snake:
             self.direction = UP
         if event.key == pygame.K_DOWN and self.direction is not UP:
             self.direction = DOWN
+
+    def check_collisions(self, canvas):
+        head = self.body[0]
+
+        # First check for a boundary collision with the appropriate edge of the playing area
+        if self.direction == UP:
+            p = head.rect.midtop
+        elif self.direction == DOWN:
+            p = head.rect.midbottom
+        elif self.direction == LEFT:
+            p = head.rect.midleft
+        else:
+            p = head.rect.midright
+
+        if not canvas.rect.collidepoint(p):
+            return True
+
+        # Next check that the head is not colliding with any part of the body
+        for b in self.body[1:]:
+            if head.rect.colliderect(b):
+                return True
+
+        return False
 
 
 class BodySegment:
