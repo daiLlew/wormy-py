@@ -4,8 +4,6 @@ from pygame.locals import *
 
 from models import *
 
-WHITE = (255, 255, 255)
-SCREEN_SIZE = 800
 FPS = 30
 
 
@@ -13,12 +11,11 @@ def main():
     pygame.init()
     global FPSCLOCK, DISPLAYSURF
 
-
     FPSCLOCK = pygame.time.Clock()
-    DISPLAYSURF = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE), 0, 32)
+    DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
     pygame.display.set_caption("Wormy-py")
 
-    game = Game(DISPLAYSURF, Worm(400, 40), SCREEN_SIZE)
+    game = Game(DISPLAYSURF, Worm(400, 40))
 
     running = True
 
@@ -46,3 +43,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

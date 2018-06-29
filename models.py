@@ -1,12 +1,17 @@
 import pygame
+import random
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-SEGMENT_SIZE = 20
+
+BODY_SIZE = 20
 MOVEMENT = 20
-ANIMATION_SPEED = 5
+ANIMATION_SPEED = 10
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 UP = "up"
 DOWN = "down"
@@ -14,21 +19,36 @@ LEFT = "left"
 RIGHT = "right"
 
 
+def calculate_apple_coordinates(maximum, segment_size):
+    coords = []
+    co = 0
+    i = 0
+
+    while co < maximum:
+        co = segment_size * i
+        coords.append(co)
+        i += 1
+
+    return coords
+
+
 class Game:
 
-    def __init__(self, display_surface, worm, size):
+    def __init__(self, display_surface, worm):
         self.display_surface = display_surface
         self.direction = DOWN
 
-        self.size = size
-        self.canvas_rect = pygame.Rect(0, 0, self.size, self.size)
+        self.canvas_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
         self.worm = worm
         self.worm.add(self.direction)
         self.worm.add(self.direction)
 
+        self.x_coordinates = calculate_apple_coordinates(SCREEN_WIDTH - BODY_SIZE, BODY_SIZE)
+        self.y_coordinates = calculate_apple_coordinates(SCREEN_HEIGHT - BODY_SIZE, BODY_SIZE)
+
         self.apples = []
-        self.apples.append(Apple())
+        self.add_apple()
 
     def draw(self):
         # draw the background
@@ -85,15 +105,33 @@ class Game:
         return False
 
     def add_apple(self):
-        self.apples.append(Apple())
+        coord = None
+        found = False
+
+        while not found:
+            coord = self.generate_apple_coordinate()
+            r = pygame.Rect(coord[0], coord[1], BODY_SIZE, BODY_SIZE)
+
+            if r.collidelist(self.worm.body):
+                found = True
+
+        self.apples.append(Apple(coord))
 
     def check_apple_eaten(self):
         for i in range(len(self.apples)):
             if self.worm.head.rect.colliderect(self.apples[i]):
-                print("apple consumed")
                 self.worm.add(self.direction)
                 del self.apples[i]
+                self.add_apple()
                 break
+
+    def generate_apple_coordinate(self):
+        i = random.randint(1, len(self.x_coordinates) - 1)
+        j = random.randint(1, len(self.y_coordinates) - 1)
+
+        coord = (self.x_coordinates[i], self.y_coordinates[j])
+        print(coord)
+        return coord
 
 
 class Worm:
@@ -111,15 +149,15 @@ class Worm:
 
         if direction == UP:
             new_x = last.rect.x
-            new_y = last.rect.y + SEGMENT_SIZE
+            new_y = last.rect.y + BODY_SIZE
         elif direction == DOWN:
             new_x = last.rect.x
-            new_y = last.rect.y - SEGMENT_SIZE
+            new_y = last.rect.y - BODY_SIZE
         elif direction == LEFT:
-            new_x = last.rect.x - SEGMENT_SIZE
+            new_x = last.rect.x - BODY_SIZE
             new_y = last.rect.y
         else:
-            new_x = last.rect.x + SEGMENT_SIZE
+            new_x = last.rect.x + BODY_SIZE
             new_y = last.rect.y
 
         self.body.append(BodySegment(new_x, new_y))
@@ -161,7 +199,7 @@ class BodySegment:
     def __init__(self, x_co, y_co):
         self.x_co = x_co
         self.y_co = y_co
-        self.size = SEGMENT_SIZE
+        self.size = BODY_SIZE
         self.rect = pygame.Rect(self.x_co, self.y_co, self.size, self.size)
 
     def xy(self):
@@ -175,8 +213,10 @@ class Apple:
     x_co = None
     y_co = None
 
-    def __init__(self):
-        self.x_co = 120
-        self.y_co = 120
-        self.rect = pygame.Rect(self.x_co, self.y_co, SEGMENT_SIZE, SEGMENT_SIZE)
+    def __init__(self, coordinate):
+        self.x_co = coordinate[0]
+        self.y_co = coordinate[1]
+
+        print("adding apple at x_co=", self.x_co, ", y_co=", self.y_co)
+        self.rect = pygame.Rect(self.x_co, self.y_co, BODY_SIZE, BODY_SIZE)
 
