@@ -13,14 +13,12 @@ def main():
     pygame.init()
     global FPSCLOCK, DISPLAYSURF
 
-    start_pos = (SCREEN_SIZE / 2) - (SEGMENT_SIZE / 2)
-    snake = Snake(start_pos, start_pos)
-
-    canvas = Canvas(SCREEN_SIZE)
 
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE), 0, 32)
     pygame.display.set_caption("Wormy-py")
+
+    game = Game(DISPLAYSURF, Worm(400, 40), SCREEN_SIZE)
 
     running = True
 
@@ -32,19 +30,16 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == MOUSEBUTTONDOWN:
-                snake.add()
-            elif event.type == pygame.KEYDOWN:
-                snake.update_direction(event)
+            if event.type == pygame.KEYDOWN:
+                game.update_direction(event)
 
-        snake.move()
+        game.animate()
 
-        DISPLAYSURF.fill(WHITE)
-        snake.draw(DISPLAYSURF)
-
-        if canvas.boundary_collision(snake):
+        if game.check_collisions():
             running = False
-            print("boundary collision exiting game!")
+
+        game.check_apple_eaten()
+        game.draw()
 
         pygame.display.update()
 
