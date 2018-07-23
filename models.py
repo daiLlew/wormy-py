@@ -50,6 +50,9 @@ class Game:
         self.apples = []
         self.add_apple()
 
+        self.score_font = pygame.font.SysFont("comicsansms", 20)
+        self.score = 0
+
     def draw(self):
         # draw the background
         self.display_surface.fill(WHITE)
@@ -61,6 +64,11 @@ class Game:
         # draw any apples
         for a in self.apples:
             pygame.draw.rect(self.display_surface, RED, a.rect)
+
+        self.display_surface.blit(self.get_score_label(), (10, 5))
+
+    def get_score_label(self):
+        return self.score_font.render("Score: " + str(self.score), True, BLACK)
 
     def animate(self):
         self.worm.move()

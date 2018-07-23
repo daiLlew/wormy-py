@@ -9,6 +9,7 @@ FPS = 30
 
 def main():
     pygame.init()
+    pygame.font.init()
     global FPSCLOCK, DISPLAYSURF
 
     FPSCLOCK = pygame.time.Clock()
@@ -25,6 +26,7 @@ def main():
             if event.type == QUIT:
                 print("exiting")
                 pygame.quit()
+                pygame.font.quit()
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
@@ -35,6 +37,7 @@ def main():
 
         if game.check_apple_eaten():
             game.worm.add()
+            game.score += 1
 
         game.animate()
         game.draw()
