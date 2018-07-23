@@ -8,7 +8,7 @@ GREEN = (0, 255, 0)
 
 BODY_SIZE = 20
 MOVEMENT = 20
-ANIMATION_SPEED = 10
+ANIMATION_SPEED = 8
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -41,8 +41,8 @@ class Game:
         self.canvas_rect = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
         self.worm = worm
-        self.worm.add(self.direction)
-        self.worm.add(self.direction)
+        self.worm.add()
+        self.worm.add()
 
         self.x_coordinates = calculate_apple_coordinates(SCREEN_WIDTH - BODY_SIZE, BODY_SIZE)
         self.y_coordinates = calculate_apple_coordinates(SCREEN_HEIGHT - BODY_SIZE, BODY_SIZE)
@@ -55,31 +55,25 @@ class Game:
         self.display_surface.fill(WHITE)
 
         # draw the worm
-        head = True
         for b in self.worm.body:
-            if head:
-                pygame.draw.rect(self.display_surface, GREEN, b.rect)
-                head = False
-            else:
-                pygame.draw.rect(self.display_surface, RED, b.rect)
-                pygame.draw.rect(self.display_surface, BLACK, b.xy())
+            pygame.draw.rect(self.display_surface, GREEN, b.rect)
 
         # draw any apples
         for a in self.apples:
-            pygame.draw.rect(self.display_surface, BLACK, a.rect)
+            pygame.draw.rect(self.display_surface, RED, a.rect)
 
     def animate(self):
-        self.worm.move(self.direction)
+        self.worm.move()
 
     def update_direction(self, event):
-        if event.key == pygame.K_LEFT and self.direction is not RIGHT:
-            self.direction = LEFT
-        if event.key == pygame.K_RIGHT and self.direction is not LEFT:
-            self.direction = RIGHT
-        if event.key == pygame.K_UP and self.direction is not DOWN:
-            self.direction = UP
-        if event.key == pygame.K_DOWN and self.direction is not UP:
-            self.direction = DOWN
+        if event.key == pygame.K_LEFT and self.worm.current_direction is not RIGHT:
+            self.worm.current_direction = LEFT
+        if event.key == pygame.K_RIGHT and self.worm.current_direction is not LEFT:
+            self.worm.current_direction = RIGHT
+        if event.key == pygame.K_UP and self.worm.current_direction is not DOWN:
+            self.worm.current_direction = UP
+        if event.key == pygame.K_DOWN and self.worm.current_direction is not UP:
+            self.worm.current_direction = DOWN
 
     def check_collisions(self):
         head = self.worm.head
@@ -120,7 +114,7 @@ class Game:
     def check_apple_eaten(self):
         for i in range(len(self.apples)):
             if self.worm.head.rect.colliderect(self.apples[i]):
-                self.worm.add(self.direction)
+                self.worm.add()
                 del self.apples[i]
                 self.add_apple()
                 break
@@ -137,45 +131,47 @@ class Game:
 class Worm:
     length = None
     body = []
+    current_direction = None
 
     def __init__(self, start_x, start_y):
         self.length = 1
         self.ani_speed = ANIMATION_SPEED
-        self.body.append(BodySegment(start_x, start_y))
+        self.body.append(BodySegment(start_x, start_y, DOWN))
+        self.current_direction = DOWN
         self.head = self.body[0]
 
-    def add(self, direction):
+    def add(self):
         last = self.body[-1]
 
-        if direction == UP:
+        if last.direction == UP:
             new_x = last.rect.x
             new_y = last.rect.y + BODY_SIZE
-        elif direction == DOWN:
+        elif last.direction == DOWN:
             new_x = last.rect.x
             new_y = last.rect.y - BODY_SIZE
-        elif direction == LEFT:
+        elif last.direction == LEFT:
             new_x = last.rect.x - BODY_SIZE
             new_y = last.rect.y
         else:
             new_x = last.rect.x + BODY_SIZE
             new_y = last.rect.y
 
-        self.body.append(BodySegment(new_x, new_y))
+        self.body.append(BodySegment(new_x, new_y, last.direction))
 
-    def move(self, direction):
+    def move(self):
         if self.ani_speed > 0:
             self.ani_speed -= 1
             return
 
         old_head = self.head
 
-        if direction == UP:
+        if self.current_direction == UP:
             new_x = old_head.rect.x
             new_y = old_head.rect.y - MOVEMENT
-        elif direction == DOWN:
+        elif self.current_direction == DOWN:
             new_x = old_head.rect.x
             new_y = old_head.rect.y + MOVEMENT
-        elif direction == LEFT:
+        elif self.current_direction == LEFT:
             new_x = old_head.rect.x - MOVEMENT
             new_y = old_head.rect.y
         else:
@@ -183,7 +179,7 @@ class Worm:
             new_y = old_head.rect.y
 
         self.body.pop()
-        new_head = BodySegment(new_x, new_y)
+        new_head = BodySegment(new_x, new_y, self.current_direction)
         self.body.insert(0, new_head)
         self.head = new_head
 
@@ -195,11 +191,13 @@ class BodySegment:
     y_co = None
     size = None
     rect = None
+    direction = None
 
-    def __init__(self, x_co, y_co):
+    def __init__(self, x_co, y_co, direction):
         self.x_co = x_co
         self.y_co = y_co
         self.size = BODY_SIZE
+        self.direction = direction
         self.rect = pygame.Rect(self.x_co, self.y_co, self.size, self.size)
 
     def xy(self):
