@@ -4,11 +4,11 @@ import random
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+GREEN = (107, 186, 33)
 
 BODY_SIZE = 20
 MOVEMENT = 20
-ANIMATION_SPEED = 8
+ANIMATION_SPEED = 3
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -89,7 +89,10 @@ class Game:
         else:
             p = head.rect.midright
 
-        if not self.canvas_rect.collidepoint(p):
+        """ pygame.Rect.collidepoint: A point along the right or bottom edge is not considered to be inside the rectangle
+        To get around this inflate the canvas rect by 2 and use this to check for the collision. This allows the worm
+        to get right up to the edges without ending the game prematurely """
+        if not self.canvas_rect.inflate(2, 2).collidepoint(p):
             return True
 
         # Next check that the head is not colliding with any part of the body
@@ -114,10 +117,10 @@ class Game:
     def check_apple_eaten(self):
         for i in range(len(self.apples)):
             if self.worm.head.rect.colliderect(self.apples[i]):
-                self.worm.add()
                 del self.apples[i]
                 self.add_apple()
-                break
+                return True
+        return False
 
     def generate_apple_coordinate(self):
         i = random.randint(1, len(self.x_coordinates) - 1)
@@ -156,6 +159,8 @@ class Worm:
             new_x = last.rect.x + BODY_SIZE
             new_y = last.rect.y
 
+        # reset the animation speed to 0 to make the newly added segment appear instantly.
+        self.ani_speed = 0
         self.body.append(BodySegment(new_x, new_y, last.direction))
 
     def move(self):
@@ -215,6 +220,5 @@ class Apple:
         self.x_co = coordinate[0]
         self.y_co = coordinate[1]
 
-        print("adding apple at x_co=", self.x_co, ", y_co=", self.y_co)
         self.rect = pygame.Rect(self.x_co, self.y_co, BODY_SIZE, BODY_SIZE)
 

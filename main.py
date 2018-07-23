@@ -30,12 +30,13 @@ def main():
             if event.type == pygame.KEYDOWN:
                 game.update_direction(event)
 
-        game.animate()
-
         if game.check_collisions():
             running = False
 
-        game.check_apple_eaten()
+        if game.check_apple_eaten():
+            game.worm.add()
+
+        game.animate()
         game.draw()
 
         pygame.display.update()
