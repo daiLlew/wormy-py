@@ -50,8 +50,9 @@ class Game:
         self.apples = []
         self.add_apple()
 
+        self.score_inc = 20
         self.score_font = pygame.font.SysFont("comicsansms", 20)
-        self.score = 0
+        self.apples_consumed = 0
 
     def draw(self):
         # draw the background
@@ -68,7 +69,7 @@ class Game:
         self.display_surface.blit(self.get_score_label(), (10, 5))
 
     def get_score_label(self):
-        return self.score_font.render("Score: " + str(self.score), True, BLACK)
+        return self.score_font.render("Score: " + str(self.apples_consumed * self.score_inc), True, BLACK)
 
     def animate(self):
         self.worm.move()
@@ -125,6 +126,7 @@ class Game:
     def check_apple_eaten(self):
         for i in range(len(self.apples)):
             if self.worm.head.rect.colliderect(self.apples[i]):
+                self.apples_consumed += 1
                 del self.apples[i]
                 self.add_apple()
                 return True
@@ -229,4 +231,3 @@ class Apple:
         self.y_co = coordinate[1]
 
         self.rect = pygame.Rect(self.x_co, self.y_co, BODY_SIZE, BODY_SIZE)
-

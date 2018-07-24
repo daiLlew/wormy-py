@@ -37,7 +37,6 @@ def main():
 
         if game.check_apple_eaten():
             game.worm.add()
-            game.score += 1
 
         game.animate()
         game.draw()
